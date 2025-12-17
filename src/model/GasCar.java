@@ -13,4 +13,9 @@ public class GasCar extends Car {
     public double calculateRentalFee(int days) {
         return days * pricePerDay;
     }
+    
+    public double getFuelConsumption() {
+        return fuelConsumption;
+    }
+
 }
