@@ -28,4 +28,9 @@ public abstract class Car implements Rentable {
     public void returnCar() {
         available = true;
     }
+    
+    public String getBrand() {
+        return brand;
+    }
+
 }
