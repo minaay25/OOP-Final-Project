@@ -8,4 +8,9 @@ public class GasCar extends Car {
         super(id, brand, pricePerDay);
         this.fuelConsumption = fuelConsumption;
     }
+
+    @Override
+    public double calculateRentalFee(int days) {
+        return days * pricePerDay;
+    }
 }
