@@ -8,4 +8,9 @@ public class ElectricCar extends Car {
         super(id, brand, pricePerDay);
         this.batteryCapacity = batteryCapacity;
     }
+
+    @Override
+    public double calculateRentalFee(int days) {
+        return days * pricePerDay * 0.9;
+    }
 }
