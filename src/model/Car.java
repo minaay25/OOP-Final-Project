@@ -1,6 +1,8 @@
 package model;
 
-public abstract class Car {
+import interfacepkg.Rentable;
+
+public abstract class Car implements Rentable {
 
     protected String id;
     protected String brand;
@@ -14,6 +16,7 @@ public abstract class Car {
         this.available = true;
     }
 
+    @Override
     public boolean isAvailable() {
         return available;
     }
