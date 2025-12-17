@@ -13,4 +13,9 @@ public class ElectricCar extends Car {
     public double calculateRentalFee(int days) {
         return days * pricePerDay * 0.9;
     }
+    
+    public double getBatteryCapacity() {
+        return batteryCapacity;
+    }
+
 }
