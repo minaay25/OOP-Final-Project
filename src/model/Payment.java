@@ -1,7 +1,13 @@
 package model;
 
 import java.time.LocalDateTime;
-
+/**
+ * Payment class handles payment processing for rentals.
+ * Manages payment details and transaction status.
+ * 
+ * @author Mina
+ * @version 1.0
+ */
 public class Payment {
     
     private String paymentId;
