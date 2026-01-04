@@ -1,0 +1,31 @@
+@startuml
+left to right direction
+skinparam packageStyle rectangle
+
+actor "Customer" as Customer
+actor "System Admin" as Admin
+
+rectangle "Car Rental System" {
+  usecase "View Available Cars" as UC1
+  usecase "Rent Car" as UC2
+  usecase "Make Payment" as UC3
+  usecase "Return Car" as UC4
+  
+  usecase "Add/Remove Car" as UC5
+  usecase "View Rental Statistics" as UC6
+  usecase "Manage Customer Records" as UC7
+}
+
+Customer --> UC1
+Customer --> UC2
+Customer --> UC3
+Customer --> UC4
+
+Admin --> UC5
+Admin --> UC6
+Admin --> UC7
+
+UC2 ..> UC3 : <<include>>
+UC2 ..> UC1 : <<include>>
+
+@enduml
