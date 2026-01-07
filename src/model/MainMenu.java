@@ -214,6 +214,16 @@ public class MainMenu {
         System.out.print("Number of days: ");
         int days = scanner.nextInt();
         scanner.nextLine();
+     // Validate rental days
+        if (days <= 0) {
+            System.out.println("\nError: Number of days must be positive!");
+            return;
+        }
+
+        if (days > 365) {
+            System.out.println("\nError: Maximum rental period is 365 days!");
+            return;
+        }
         
         Customer customer = new Customer(name, customerId);
         String rentalId = "R" + String.format("%03d", rentalCounter++);
