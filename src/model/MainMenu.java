@@ -154,7 +154,11 @@ public class MainMenu {
         System.out.print("Price per day: ");
         double price = scanner.nextDouble();
         scanner.nextLine();
-        
+     // Validate price
+        if (price <= 0) {
+            System.out.println("\nError: Price must be positive!");
+            return;
+        }
         if (type == 1) {
             System.out.print("Battery Capacity (kWh): ");
             double battery = scanner.nextDouble();
