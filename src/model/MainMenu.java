@@ -165,6 +165,12 @@ public class MainMenu {
             double battery = scanner.nextDouble();
             scanner.nextLine();
             
+            // Validate battery capacity
+            if (battery <= 0) {
+                System.out.println("\nError: Battery capacity must be positive!");
+                return;
+            }
+            
             ElectricCar car = new ElectricCar(id, brand, price, battery);
             if (inventory.addCar(car)) {
                 System.out.println("\nElectric car added successfully!");
