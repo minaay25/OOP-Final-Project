@@ -94,6 +94,7 @@ public class MainMenu {
             scanner.nextLine(); // consume newline
             return choice;
         } catch (Exception e) {
+            System.out.println("\nError: Invalid input! Please enter a number.");
             scanner.nextLine(); // clear buffer
             return -1;
         }
