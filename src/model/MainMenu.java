@@ -182,6 +182,12 @@ public class MainMenu {
             double fuel = scanner.nextDouble();
             scanner.nextLine();
             
+            // Validate fuel consumption
+            if (fuel <= 0) {
+                System.out.println("\nError: Fuel consumption must be positive!");
+                return;
+            }
+            
             GasCar car = new GasCar(id, brand, price, fuel);
             if (inventory.addCar(car)) {
                 System.out.println("\nGas car added successfully!");
