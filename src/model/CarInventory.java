@@ -2,12 +2,12 @@ package model;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
+
 /**
  * CarInventory manages the collection of cars in the rental system.
- * Provides methods for adding, removing, and searching cars.
- * 
- * @author Mina
- * @version 1.0
  */
 public class CarInventory {
     
@@ -18,11 +18,34 @@ public class CarInventory {
         this.cars = new ArrayList<>();
         this.rentals = new ArrayList<>();
     }
-    /**
-     * Add a new car to inventory
-     * @param car Car to be added
-     * @return true if added successfully, false otherwise
-     */
+
+    // CSV'DEN ARAÇLARI YÜKLEYEN YENİ METOD
+    public void loadCarsFromCSV(String fileName) {
+        try (BufferedReader br = new BufferedReader(new FileReader(fileName))) {
+            String line;
+            br.readLine(); // Başlık satırını atla
+            while ((line = br.readLine()) != null) {
+                String[] data = line.split(",");
+                if (data.length < 5) continue;
+
+                String id = data[0].trim();
+                String type = data[1].trim();
+                String brand = data[2].trim();
+                double price = Double.parseDouble(data[3].trim());
+                double extra = Double.parseDouble(data[4].trim());
+
+                if (type.equalsIgnoreCase("Electric")) {
+                    addCar(new ElectricCar(id, brand, price, extra));
+                } else if (type.equalsIgnoreCase("Gas")) {
+                    addCar(new GasCar(id, brand, price, extra));
+                }
+            }
+            System.out.println(">>> Sistem: Araçlar CSV dosyasından başarıyla yüklendi.");
+        } catch (IOException | NumberFormatException e) {
+            System.out.println(">>> Hata: CSV okunurken hata oluştu: " + e.getMessage());
+        }
+    }
+
     public boolean addCar(Car car) {
         if (car != null && !cars.contains(car)) {
             cars.add(car);
@@ -30,11 +53,7 @@ public class CarInventory {
         }
         return false;
     }
-    /**
-     * Remove a car from inventory by ID
-     * @param id Car ID to remove
-     * @return true if removed successfully, false otherwise
-     */
+
     public boolean removeCar(String id) {
         for (int i = 0; i < cars.size(); i++) {
             if (cars.get(i).id.equals(id)) {
@@ -44,10 +63,7 @@ public class CarInventory {
         }
         return false;
     }
-    /**
-     * Get all available cars
-     * @return List of available cars
-     */
+
     public List<Car> getAvailableCars() {
         List<Car> available = new ArrayList<>();
         for (Car car : cars) {
@@ -57,11 +73,7 @@ public class CarInventory {
         }
         return available;
     }
-    /**
-     * Search cars by brand
-     * @param brand Brand name to search
-     * @return List of cars matching the brand
-     */
+
     public List<Car> searchByBrand(String brand) {
         List<Car> result = new ArrayList<>();
         for (Car car : cars) {
@@ -71,10 +83,7 @@ public class CarInventory {
         }
         return result;
     }
-    /**
-     * Search for electric cars
-     * @return List of electric cars
-     */
+
     public List<Car> searchElectricCars() {
         List<Car> result = new ArrayList<>();
         for (Car car : cars) {
@@ -84,10 +93,7 @@ public class CarInventory {
         }
         return result;
     }
-    /**
-     * Search for gas cars
-     * @return List of gas cars
-     */
+
     public List<Car> searchGasCars() {
         List<Car> result = new ArrayList<>();
         for (Car car : cars) {
@@ -97,11 +103,7 @@ public class CarInventory {
         }
         return result;
     }
-    /**
-     * Find car by ID
-     * @param id Car ID
-     * @return Car object if found, null otherwise
-     */
+
     public Car findCarById(String id) {
         for (Car car : cars) {
             if (car.id.equals(id)) {
@@ -110,11 +112,7 @@ public class CarInventory {
         }
         return null;
     }
-    /**
-     * Create a new rental
-     * @param rental Rental object
-     * @return true if rental created successfully
-     */
+
     public boolean createRental(Rental rental) {
         if (rental != null && rental.getCar().isAvailable()) {
             rental.getCar().rent();
@@ -123,10 +121,7 @@ public class CarInventory {
         }
         return false;
     }
-    /**
-     * Get all active rentals
-     * @return List of active rentals
-     */
+
     public List<Rental> getActiveRentals() {
         List<Rental> active = new ArrayList<>();
         for (Rental rental : rentals) {
@@ -136,18 +131,11 @@ public class CarInventory {
         }
         return active;
     }
-    /**
-     * Get all cars in inventory
-     * @return List of all cars
-     */
+
     public List<Car> getAllCars() {
         return new ArrayList<>(cars);
     }
     
-    /**
-     * Get total number of cars
-     * @return Total car count
-     */
     public int getTotalCars() {
         return cars.size();
     }

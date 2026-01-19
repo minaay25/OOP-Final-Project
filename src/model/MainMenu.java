@@ -13,14 +13,11 @@ public class MainMenu {
     
     public static void main(String[] args) {
         
-        // Örnek arabalar ekle
-        inventory.addCar(new ElectricCar("E001", "Tesla Model 3", 50.0, 75.0));
-        inventory.addCar(new ElectricCar("E002", "Nissan Leaf", 35.0, 40.0));
-        inventory.addCar(new GasCar("G001", "Toyota Camry", 40.0, 8.5));
-        inventory.addCar(new GasCar("G002", "Honda Civic", 35.0, 7.2));
+        // CSV'den arabaları yükle
+        inventory.loadCarsFromCSV("cars.csv");
         
         System.out.println("========================================");
-        System.out.println("  CAR RENTAL SYSTEM");
+        System.out.println("  CAR RENTAL SYSTEM (CSV LOADED)");
         System.out.println("========================================\n");
         
         boolean running = true;
@@ -114,14 +111,6 @@ public class MainMenu {
             String status = car.isAvailable() ? "Available" : "Rented";
             System.out.println("ID: " + car.id + " | " + car.getBrand() + 
                              " (" + type + ") | $" + car.pricePerDay + "/day | " + status);
-            
-            if (car instanceof ElectricCar) {
-                ElectricCar eCar = (ElectricCar) car;
-                System.out.println("  Battery: " + eCar.getBatteryCapacity() + " kWh");
-            } else if (car instanceof GasCar) {
-                GasCar gCar = (GasCar) car;
-                System.out.println("  Fuel Consumption: " + gCar.getFuelConsumption() + " L/100km");
-            }
         }
     }
     
@@ -155,101 +144,51 @@ public class MainMenu {
         System.out.print("Price per day: ");
         double price = scanner.nextDouble();
         scanner.nextLine();
-     // Validate price
-        if (price <= 0) {
-            System.out.println("\nError: Price must be positive!");
-            return;
-        }
+
         if (type == 1) {
             System.out.print("Battery Capacity (kWh): ");
             double battery = scanner.nextDouble();
             scanner.nextLine();
-            
-            // Validate battery capacity
-            if (battery <= 0) {
-                System.out.println("\nError: Battery capacity must be positive!");
-                return;
-            }
-            
-            ElectricCar car = new ElectricCar(id, brand, price, battery);
-            if (inventory.addCar(car)) {
-                System.out.println("\nElectric car added successfully!");
-            } else {
-                System.out.println("\nFailed to add car!");
-            }
+            inventory.addCar(new ElectricCar(id, brand, price, battery));
         } else if (type == 2) {
             System.out.print("Fuel Consumption (L/100km): ");
             double fuel = scanner.nextDouble();
             scanner.nextLine();
-            
-            // Validate fuel consumption
-            if (fuel <= 0) {
-                System.out.println("\nError: Fuel consumption must be positive!");
-                return;
-            }
-            
-            GasCar car = new GasCar(id, brand, price, fuel);
-            if (inventory.addCar(car)) {
-                System.out.println("\nGas car added successfully!");
-            } else {
-                System.out.println("\nFailed to add car!");
-            }
-        } else {
-            System.out.println("\nInvalid car type!");
+            inventory.addCar(new GasCar(id, brand, price, fuel));
         }
+        System.out.println("\nCar added successfully!");
     }
     
     private static void rentCar() {
         System.out.println("\n=== RENT A CAR ===");
         displayAvailableCars();
         
-        if (inventory.getAvailableCars().isEmpty()) {
-            return;
-        }
-        
         System.out.print("\nEnter Car ID: ");
         String carId = scanner.nextLine();
-        
         Car car = inventory.findCarById(carId);
         
-        if (car == null) {
-            System.out.println("Car not found!");
-            return;
-        }
-        
-        if (!car.isAvailable()) {
-            System.out.println("Car is not available!");
+        if (car == null || !car.isAvailable()) {
+            System.out.println("Car not found or unavailable!");
             return;
         }
         
         System.out.print("Customer Name: ");
         String name = scanner.nextLine();
-        
         System.out.print("Customer ID: ");
         String customerId = scanner.nextLine();
-        
         System.out.print("Number of days: ");
         int days = scanner.nextInt();
         scanner.nextLine();
-     // Validate rental days
-        if (days <= 0) {
-            System.out.println("\nError: Number of days must be positive!");
-            return;
-        }
-
-        if (days > 365) {
-            System.out.println("\nError: Maximum rental period is 365 days!");
-            return;
-        }
         
         Customer customer = new Customer(name, customerId);
         String rentalId = "R" + String.format("%03d", rentalCounter++);
+        
+        // Senin Rental sınıfın 5 parametre bekliyor: id, customer, car, date, days
         Rental rental = new Rental(rentalId, customer, car, LocalDate.now(), days);
         
         if (inventory.createRental(rental)) {
             System.out.println("\n=== RENTAL CREATED ===");
             System.out.println(rental);
-            System.out.println("\nTotal Cost: $" + rental.getTotalCost());
         } else {
             System.out.println("\nFailed to create rental!");
         }
@@ -264,121 +203,53 @@ public class MainMenu {
             return;
         }
         
-        System.out.println("Active Rentals:");
-        for (Rental rental : activeRentals) {
-            System.out.println("Rental ID: " + rental.getRentalId() + 
-                             " | Car: " + rental.getCar().getBrand() + 
-                             " | Customer: " + rental.getCustomer().getName());
-        }
-        
-        System.out.print("\nEnter Rental ID to return: ");
+        System.out.print("Enter Rental ID to return: ");
         String rentalId = scanner.nextLine();
         
         for (Rental rental : activeRentals) {
             if (rental.getRentalId().equals(rentalId)) {
                 rental.completeRental();
                 System.out.println("\nCar returned successfully!");
-                System.out.println(rental.getCar().getBrand() + " is now available.");
                 return;
             }
         }
-        
         System.out.println("Rental ID not found!");
     }
     
     private static void searchCars() {
-        System.out.println("\n=== SEARCH CARS ===");
-        System.out.println("1. Search by Brand");
-        System.out.println("2. Search Electric Cars");
-        System.out.println("3. Search Gas Cars");
-        System.out.print("Enter choice: ");
-        
-        int choice = getChoice();
-        
-        switch (choice) {
-            case 1:
-                System.out.print("Enter brand: ");
-                String brand = scanner.nextLine();
-                List<Car> byBrand = inventory.searchByBrand(brand);
-                
-                if (byBrand.isEmpty()) {
-                    System.out.println("No cars found.");
-                } else {
-                    System.out.println("\nFound " + byBrand.size() + " car(s):");
-                    for (Car car : byBrand) {
-                        System.out.println("- " + car.getBrand() + " (Available: " + car.isAvailable() + ")");
-                    }
-                }
-                break;
-                
-            case 2:
-                List<Car> electric = inventory.searchElectricCars();
-                System.out.println("\nElectric Cars (" + electric.size() + "):");
-                for (Car car : electric) {
-                    ElectricCar eCar = (ElectricCar) car;
-                    System.out.println("- " + car.getBrand() + " | Battery: " + 
-                                     eCar.getBatteryCapacity() + " kWh | Available: " + car.isAvailable());
-                }
-                break;
-                
-            case 3:
-                List<Car> gas = inventory.searchGasCars();
-                System.out.println("\nGas Cars (" + gas.size() + "):");
-                for (Car car : gas) {
-                    GasCar gCar = (GasCar) car;
-                    System.out.println("- " + car.getBrand() + " | Fuel: " + 
-                                     gCar.getFuelConsumption() + " L/100km | Available: " + car.isAvailable());
-                }
-                break;
-                
-            default:
-                System.out.println("Invalid choice!");
+        System.out.print("\nEnter brand to search: ");
+        String brand = scanner.nextLine();
+        List<Car> results = inventory.searchByBrand(brand);
+        if (results.isEmpty()) {
+            System.out.println("No cars found.");
+        } else {
+            for (Car c : results) System.out.println("- " + c.getBrand() + " [" + c.id + "]");
         }
     }
     
     private static void displayStatistics() {
-        System.out.println("\n=== SYSTEM STATISTICS ===");
+        System.out.println("\n=== STATISTICS ===");
         System.out.println("Total Cars: " + inventory.getTotalCars());
-        System.out.println("Available Cars: " + inventory.getAvailableCarCount());
-        System.out.println("Rented Cars: " + (inventory.getTotalCars() - inventory.getAvailableCarCount()));
-        System.out.println("Active Rentals: " + inventory.getActiveRentals().size());
-        System.out.println("Electric Cars: " + inventory.searchElectricCars().size());
-        System.out.println("Gas Cars: " + inventory.searchGasCars().size());
+        System.out.println("Available: " + inventory.getAvailableCarCount());
     }
     
     private static void processPayment() {
-        System.out.println("\n=== PROCESS PAYMENT ===");
         List<Rental> activeRentals = inventory.getActiveRentals();
-        
         if (activeRentals.isEmpty()) {
-            System.out.println("No active rentals to pay.");
+            System.out.println("No active rentals for payment.");
             return;
         }
         
-        System.out.println("Active Rentals:");
-        for (Rental rental : activeRentals) {
-            System.out.println("Rental ID: " + rental.getRentalId() + 
-                             " | Amount: $" + rental.getTotalCost() + 
-                             " | Customer: " + rental.getCustomer().getName());
-        }
-        
-        System.out.print("\nEnter Rental ID: ");
-        String rentalId = scanner.nextLine();
-        
-        for (Rental rental : activeRentals) {
-            if (rental.getRentalId().equals(rentalId)) {
-                System.out.print("Payment Method (Credit Card / Cash / Debit): ");
-                String method = scanner.nextLine();
-                
-                String paymentId = "P" + String.format("%03d", paymentCounter++);
-                Payment payment = new Payment(paymentId, rental, method);
-                
-                System.out.println("\n" + payment);
-                payment.processPayment();
+        System.out.print("Enter Rental ID for payment: ");
+        String rid = scanner.nextLine();
+        for (Rental r : activeRentals) {
+            if (r.getRentalId().equals(rid)) {
+                String pid = "P" + (paymentCounter++);
+                Payment p = new Payment(pid, r, "Credit Card");
+                p.processPayment();
+                System.out.println(p);
                 return;
             }
         }
-        
-        System.out.println("Rental ID not found!");
     }
 }

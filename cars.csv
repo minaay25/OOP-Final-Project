@@ -1,0 +1,5 @@
+ID,Type,Brand,PricePerDay,CapacityOrFuel
+E001,Electric,Tesla Model 3,50.0,75.0
+E002,Electric,Nissan Leaf,35.0,40.0
+G001,Gas,Toyota Camry,40.0,8.5
+G002,Gas,Honda Civic,35.0,7.2
